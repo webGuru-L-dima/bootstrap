@@ -3880,10 +3880,16 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         query:'='
       },
       link:function (scope, element, attrs) {
-        var tplUrl = $parse(attrs.templateUrl)(scope.$parent) || 'template/typeahead/typeahead-match.html';
-        $http.get(tplUrl, {cache: $templateCache}).then(function(tplContent){
-           element.replaceWith($compile(tplContent.trim())(scope));
-        });
+        // var tplUrl = $parse(attrs.templateUrl)(scope.$parent) || 'template/typeahead/typeahead-match.html';
+        var tplUrl = $parse(attrs.templateUrl)(scope.$parent);
+        if (tplUrl) {
+          $http.get(tplUrl, {cache: $templateCache}).then(function (tplContent) {
+            element.replaceWith($compile(tplContent.trim())(scope));
+          });
+        } else {
+          var tplContent = "<a tabindex=\"-1\" bind-html-unsafe=\"match.label | typeaheadHighlight:query\"></a>";
+          element.replaceWith($compile(tplContent.trim())(scope));
+        }
       }
     };
   }])
