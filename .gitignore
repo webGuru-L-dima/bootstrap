@@ -15,6 +15,10 @@ pids
 logs
 results
 dist
+docs
+misc
+src
+template
 # test coverage files
 .coverage/
 
@@ -22,3 +26,18 @@ node_modules
 npm-debug.log
 
 template/**/*.js
+
+.editorconfig
+.eslintrc
+.gitattributes
+.jshintrc
+.npmignore
+.travis.yml
+CHANGELOG.md
+CONTRIBUTING.md
+Gruntfile.js
+karma.conf.js
+LICENSE
+package.json
+README.md
+ROADMAP.md

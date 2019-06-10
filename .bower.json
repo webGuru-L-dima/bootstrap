@@ -1,0 +1,26 @@
+{
+  "author": {
+    "name": "https://github.com/angular-ui/bootstrap/graphs/contributors"
+  },
+  "name": "angular-bootstrap",
+  "keywords": [
+    "angular",
+    "angular-ui",
+    "bootstrap"
+  ],
+  "license": "MIT",
+  "ignore": [],
+  "description": "Native AngularJS (Angular) directives for Bootstrap.",
+  "version": "0.12.2",
+  "main": [
+    "./ui-bootstrap-tpls.js"
+  ],
+  "dependencies": {},
+  "_release": "0.12.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.12.2"
+  },
+  "_target": "0.12.2",
+  "_originalSource": "angular-bootstrap"
+}
