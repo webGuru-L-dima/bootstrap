@@ -1,8 +1,6 @@
 /* global FastClick, smoothScroll */
-angular.module('ui.bootstrap.demo', ['ui.bootstrap', 'plunker', 'ngTouch', 'ngAnimate', 'ngSanitize'], function($httpProvider){
-  if (!!window.FastClick) {
-    FastClick.attach(document.body);
-  }
+angular.module('ui.bootstrap.demo', ['ui.bootstrap', 'plunker', 'ngTouch'], function($httpProvider){
+  FastClick.attach(document.body);
   delete $httpProvider.defaults.headers.common['X-Requested-With'];
 }).run(['$location', function($location){
   //Allows us to navigate to the correct element on initialization
@@ -22,7 +20,7 @@ angular.module('ui.bootstrap.demo', ['ui.bootstrap', 'plunker', 'ngTouch', 'ngAn
     get: function () {
       return $q.all({
         moduleMap: getModuleMap(),
-        rawFiles: getRawFiles()
+        rawFiles: getRawFiles(),
       });
     }
   };
@@ -43,20 +41,13 @@ angular.module('ui.bootstrap.demo', ['ui.bootstrap', 'plunker', 'ngTouch', 'ngAn
       });
   }
 
-})
-.controller('MainCtrl', MainCtrl)
-.controller('SelectModulesCtrl', SelectModulesCtrl)
-.controller('DownloadCtrl', DownloadCtrl);
+});
 
-function MainCtrl($scope, $http, $document, $uibModal, orderByFilter) {
-  // Grab old version docs
-  $http.get('/bootstrap/versions-mapping.json')
-    .then(function(result) {
-      $scope.oldDocs = result.data;
-    });
+var builderUrl = "http://50.116.42.77:3001";
 
+function MainCtrl($scope, $http, $document, $modal, orderByFilter) {
   $scope.showBuildModal = function() {
-    var modalInstance = $uibModal.open({
+    var modalInstance = $modal.open({
       templateUrl: 'buildModal.html',
       controller: 'SelectModulesCtrl',
       resolve: {
@@ -71,14 +62,14 @@ function MainCtrl($scope, $http, $document, $uibModal, orderByFilter) {
   };
 
   $scope.showDownloadModal = function() {
-    var modalInstance = $uibModal.open({
+    var modalInstance = $modal.open({
       templateUrl: 'downloadModal.html',
       controller: 'DownloadCtrl'
     });
   };
 }
 
-function SelectModulesCtrl($scope, $uibModalInstance, modules, buildFilesService) {
+var SelectModulesCtrl = function($scope, $modalInstance, modules, buildFilesService) {
   $scope.selectedModules = [];
   $scope.modules = modules;
 
@@ -91,11 +82,11 @@ function SelectModulesCtrl($scope, $uibModalInstance, modules, buildFilesService
   };
 
   $scope.downloadBuild = function () {
-    $uibModalInstance.close($scope.selectedModules);
+    $modalInstance.close($scope.selectedModules);
   };
 
   $scope.cancel = function () {
-    $uibModalInstance.dismiss();
+    $modalInstance.dismiss();
   };
 
   $scope.isOldBrowser = function () {
@@ -162,38 +153,11 @@ function SelectModulesCtrl($scope, $uibModalInstance, modules, buildFilesService
 
       var jsTplFile = createWithTplFile(srcModuleFullNames, srcJsContent, tplModuleNames, tplJsContent);
 
-      var cssContent = srcModules
-      .map(function (module) {
-        return module.css;
-      })
-      .filter(function (css) {
-        return css;
-      })
-      .join('\n')
-      ;
-
-      var cssJsContent = srcModules
-      .map(function (module) {
-        return module.cssJs;
-      })
-      .filter(function (cssJs) {
-        return cssJs;
-      })
-      .join('\n')
-      ;
-
-      var footer = cssJsContent;
-
       var zip = new JSZip();
-      zip.file('ui-bootstrap-custom-' + version + '.js', rawFiles.banner + jsFile + footer);
-      zip.file('ui-bootstrap-custom-' + version + '.min.js', rawFiles.banner + uglify(jsFile + footer));
-      zip.file('ui-bootstrap-custom-tpls-' + version + '.js', rawFiles.banner + jsTplFile + footer);
-      zip.file('ui-bootstrap-custom-tpls-' + version + '.min.js', rawFiles.banner + uglify(jsTplFile + footer));
-      zip.file('ui-bootstrap-custom-tpls-' + version + '.min.js', rawFiles.banner + uglify(jsTplFile + footer));
-
-      if (cssContent) {
-        zip.file('ui-bootstrap-custom-' + version + '-csp.css', rawFiles.cssBanner + cssContent);
-      }
+      zip.file('ui-bootstrap-custom-' + version + '.js', rawFiles.banner + jsFile);
+      zip.file('ui-bootstrap-custom-' + version + '.min.js', rawFiles.banner + uglify(jsFile));
+      zip.file('ui-bootstrap-custom-tpls-' + version + '.js', rawFiles.banner + jsTplFile);
+      zip.file('ui-bootstrap-custom-tpls-' + version + '.min.js', rawFiles.banner + uglify(jsTplFile));
 
       saveAs(zip.generate({type: 'blob'}), 'ui-bootstrap-custom-build.zip');
     }
@@ -242,9 +206,9 @@ function SelectModulesCtrl($scope, $uibModalInstance, modules, buildFilesService
       return stream.toString();
     }
   };
-}
+};
 
-function DownloadCtrl($scope, $uibModalInstance) {
+var DownloadCtrl = function($scope, $modalInstance) {
   $scope.options = {
     minified: true,
     tpls: true
@@ -267,9 +231,9 @@ function DownloadCtrl($scope, $uibModalInstance) {
   };
 
   $scope.cancel = function () {
-    $uibModalInstance.dismiss();
+    $modalInstance.dismiss();
   };
-}
+};
 
 /*
  * The following compatibility check is from:
@@ -293,7 +257,7 @@ var isOldBrowser;
      *   https://github.com/ssorallen/blob-feature-check/
      *   License: Public domain (http://unlicense.org)
      */
-    var url = window.URL;
+    var url = window.webkitURL || window.URL; // Safari 6 uses "webkitURL".
     var svg = new Blob(
         ['<svg xmlns=\'http://www.w3.org/2000/svg\'></svg>'],
         { type: 'image/svg+xml;charset=utf-8' }
